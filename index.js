@@ -1,3 +1,5 @@
+// TODO: Refactor all of this stuff
+
 /* eslint-disable no-sync */
 const _ = require('lodash')
 const Fontmin = require('fontmin')
