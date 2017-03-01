@@ -7,7 +7,7 @@ const fs = require('fs')
 const fontkit = require('fontkit')
 
 const glyphs = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%20' +
-				'~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?©'
+				'~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?'
 const numberGlyphs = glyphs.length - 2 // %20 is only one character (The space)
 const fontmin = new Fontmin()
 	.src('../fonts/ofl/**/*.ttf') // OFL from Google
