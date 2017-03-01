@@ -1,8 +1,10 @@
+/* eslint-disable no-sync */
 const _ = require('lodash')
 const Fontmin = require('fontmin')
+const fs = require('fs')
 
 const fontmin = new Fontmin()
-	.src('fonts/**/*.ttf')
+	.src('../fonts/ofl/**/*.ttf')
 	.use(Fontmin.glyph({
 		text: '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%20' +
 				'~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?©',
@@ -29,9 +31,17 @@ fontmin.run((err, files) => {
 					.split('/')
 					.pop()
 					.replace(/\.woff$/, '')
+					.split('-')[0],
+				weightStyle: file
+					.history[1]
+					.split('/')
+					.pop()
+					.replace(/\.woff$/, '')
+					.split('-')[1]
 			}))
 		.sort((a, b) => a.size - b.size)
-		.reverse()
 
-	console.log(infos)
+	const filename = 'build/fonts-data.json'
+	fs.writeFileSync(filename, JSON.stringify(infos))
+	console.log(`Info on ${infos.length} fonts written to: ${filename}`)
 })
