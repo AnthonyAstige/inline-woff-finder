@@ -52,6 +52,7 @@ fontmin.run((err, cbFiles) => {
 					.split('-')[1]
 			}))
 		.sort((a, b) => a.size - b.size)
+		.filter((file) => (file.size <= (10 * 1024))) // Smaller than 10 KB
 
 	const filename = 'build/fonts-data.js'
 	fs.writeFileSync(filename, `var fontsData=${JSON.stringify(infos)}`)
