@@ -9,6 +9,7 @@
   "author": "Anthony Astie",
   "license": "ISC",
   "dependencies": {
-    "fontmin": "^0.9.6"
+    "fontmin": "^0.9.6",
+    "lodash": "^4.17.4"
   }
 }
