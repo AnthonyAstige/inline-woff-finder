@@ -53,7 +53,7 @@ fontmin.run((err, cbFiles) => {
 			}))
 		.sort((a, b) => a.size - b.size)
 
-	const filename = 'build/fonts-data.json'
-	fs.writeFileSync(filename, JSON.stringify(infos))
+	const filename = 'build/fonts-data.js'
+	fs.writeFileSync(filename, `var fontsData=${JSON.stringify(infos)}`)
 	console.log(`Info on ${infos.length} fonts written to: ${filename}`)
 })
