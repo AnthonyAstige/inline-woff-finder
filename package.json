@@ -1,0 +1,11 @@
+{
+  "name": "tiny-font-finder",
+  "version": "0.0.1",
+  "description": "Creates tiny fonts and helps identify which are the smallest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anthony Astie",
+  "license": "ISC"
+}
