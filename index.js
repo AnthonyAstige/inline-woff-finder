@@ -2,7 +2,7 @@ const _ = require('lodash')
 const Fontmin = require('fontmin')
 
 const fontmin = new Fontmin()
-	.src('fonts/*.ttf')
+	.src('**/*.ttf')
 	.use(Fontmin.glyph({
 		text: '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%20' +
 				'~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?©',
