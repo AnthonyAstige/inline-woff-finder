@@ -9,6 +9,7 @@
   "author": "Anthony Astie",
   "license": "ISC",
   "dependencies": {
+    "fontkit": "^1.5.2",
     "fontmin": "^0.9.6",
     "lodash": "^4.17.4"
   }
