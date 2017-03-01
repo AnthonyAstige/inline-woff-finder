@@ -2,7 +2,7 @@ const _ = require('lodash')
 const Fontmin = require('fontmin')
 
 const fontmin = new Fontmin()
-	.src('**/*.ttf')
+	.src('fonts/**/*.ttf')
 	.use(Fontmin.glyph({
 		text: '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%20' +
 				'~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?©',
@@ -20,10 +20,16 @@ fontmin.run((err, files) => {
 	}
 
 	const infos =
-		_.map(files, (file) => ({
-			fullFileName: file.history[0],
-			size: file.stat.size
-		}))
+		_.map(
+			_.filter(files, (file) => file.history[1].match(/\.woff$/)),
+			(file) => ({
+				size: file.stat.size,
+				name: file
+					.history[1]
+					.split('/')
+					.pop()
+					.replace(/\.woff$/, '')
+			}))
 		.sort((a, b) => a.size - b.size)
 		.reverse()
 
