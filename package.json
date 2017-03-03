@@ -9,8 +9,10 @@
   "author": "Anthony Astie",
   "license": "ISC",
   "dependencies": {
+    "delete-empty": "^1.0.0",
     "fontkit": "^1.5.2",
     "fontmin": "^0.9.6",
+    "fs-extra": "^2.0.0",
     "lodash": "^4.17.4"
   }
 }
