@@ -3,6 +3,7 @@
 /* eslint-disable no-sync */
 const _ = require('lodash')
 const Fontmin = require('fontmin')
+const FontsSimilarizer = require('fonts-similarizer')
 const fs = require('fs-extra')
 const fontkit = require('fontkit')
 const deleteEmpty = require('delete-empty')
@@ -17,7 +18,7 @@ const glyphs = `${az}${AZ}${digits}${space}${special}`
 const numberGlyphs = glyphs.length - 2 // %20 is only one character (The space)
 
 // Fonts loading config
-const quickDevMode = false
+const quickDevMode = true
 
 // OFL Fonts from Google
 let fontsPath = '/home/anthony/fonts/ofl'
@@ -30,6 +31,8 @@ if (quickDevMode) {
 // Clear build folder before each run
 const buildPath = `${__dirname}/build`
 fs.removeSync(buildPath)
+
+const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
 
 /**
  * Setup font processing
@@ -46,6 +49,59 @@ const fontmin = new Fontmin()
 	}))
 	.dest('build/fonts')
 
+/**
+ * Remove & erase jank fonts from data output & filesystem
+ * * Too large (> 10kb with full glyph subset)
+ * * Missing glyphs from full subset
+ **/
+function removeJank(files) {
+	const maxSize = 10 * 1024
+	function isJank(file) {
+		const p = builtPath(`${file.fp}.woff`)
+		return	!fs.existsSync(p) ||								// Already deleted
+				file.size > maxSize ||								// Too large
+				(fontkit.openSync(p).numGlyphs !== numberGlyphs)	// Missing glyphs
+	}
+	_.forEach(files.filter(isJank), (eraseMe) => {	// Erase jank files
+		['ttf', 'woff'].forEach((ext) => fs.removeSync(builtPath(`${eraseMe.fp}.${ext}`)))
+	})
+	deleteEmpty.sync(buildPath, { silent: true })	// Erase empty folders
+	return files.filter((f) => !isJank(f))			// Remove erased jank from JSON
+}
+
+/**
+ * Remove too similar of fonts
+ */
+function removeSimilar(files) {
+	// console.log('Removing dupes (this could take a few minutes..)')
+	// console.time('RemoveDupes')
+	for (let ii = 0; ii < files.length; ii++) {
+		const fullPathII = `${buildPath}/fonts/${files[ii].fp}.ttf`
+		for (let jj = ii; jj < files.length; jj++) {
+			if ((ii === jj) || files[jj].dupe) {
+				continue
+			}
+			const fullPathJJ = `${buildPath}/fonts/${files[jj].fp}.ttf`
+			const fontsSimilarizer = new FontsSimilarizer(fullPathII, fullPathJJ)
+			const similarity = fontsSimilarizer.getVisualSimilarity()
+			// If too similar, remove the prior font and move on
+			if (similarity > 0.99) {
+				files[jj].dupe = true
+				continue
+			}
+		}
+	}
+	// Erase dupe files
+	_.forEach(files.filter((f) => f.dupe), (eraseMe) => {
+		['ttf', 'woff'].forEach((ext) => fs.removeSync(builtPath(`${eraseMe.fp}.${ext}`)))
+	})
+	// Erase now empty folder
+	deleteEmpty.sync(buildPath, { silent: true })	// Erase empty folders
+	// console.timeEnd('RemoveDupes')
+	return files.filter((f) => !f.dupe) // Remove dupes from JSON
+}
+
+console.log('Generating subset fonts')
 // Process fonts
 fontmin.run((err, cbFiles) => {
 	if (err) {
@@ -59,6 +115,7 @@ fontmin.run((err, cbFiles) => {
 	/**
 	 * Add Meta data
 	 */
+	console.log('Adding font Meta Data & sorting by size')
 	files =
 		_.map(files,
 			(file) => ({
@@ -82,29 +139,16 @@ fontmin.run((err, cbFiles) => {
 			}))
 		.sort((a, b) => a.size - b.size)
 
-	/**
-	 * Remove & erase jank fonts from data output & filesystem
-	 * * Too large (> 10kb with full glyph subset)
-	 * * Missing glyphs from full subset
-	 **/
-	const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
-	const maxSize = 10 * 1024
-	function isJank(file) {
-		const p = builtPath(`${file.fp}.woff`)
-		return	!fs.existsSync(p) ||								// Already deleted
-				file.size > maxSize ||								// Too large
-				(fontkit.openSync(p).numGlyphs !== numberGlyphs)	// Missing glyphs
-	}
-	_.forEach(files.filter(isJank), (eraseMe) => {	// Erase jank files
-		['ttf', 'woff'].forEach((ext) => fs.removeSync(builtPath(`${eraseMe.fp}.${ext}`)))
-	})
-	deleteEmpty.sync(buildPath, { silent: true })	// Erase empty folders
-	files = files.filter((f) => !isJank(f))			// Remove erased jank from JSON
+	console.log('Removing jank fonts (missing glyphs, too big, ...)')
+	files = removeJank(files)
+
+	console.log('Removing dupe fonts (too similar looking)')
+	files = removeSimilar(files)
 
 	/**
 	 * Ouput JSON data
 	 */
 	const filename = 'build/fonts-data.js'
 	fs.writeFileSync(filename, `var fontsData=${JSON.stringify(files)}`)
-	console.log(`Info on ${files.length} fonts written to: ${filename}`)
+	console.log(`\nInfo on ${files.length} fonts written to: ${filename}`)
 })
