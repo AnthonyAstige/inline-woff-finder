@@ -1,5 +1,8 @@
 // TODO: Refactor all of this stuff
 
+// Script Config
+const quickDevMode = true
+
 /* eslint-disable no-sync */
 const _ = require('lodash')
 const Fontmin = require('fontmin')
@@ -16,9 +19,6 @@ const space = '%20'
 const special = '~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?'
 const glyphs = `${az}${AZ}${digits}${space}${special}`
 const numberGlyphs = glyphs.length - 2 // %20 is only one character (The space)
-
-// Fonts loading config
-const quickDevMode = true
 
 // OFL Fonts from Google
 let fontsPath = '/home/anthony/fonts/ofl'
