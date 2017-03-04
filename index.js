@@ -33,6 +33,17 @@ const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
 fs.removeSync(buildPath)
 
 /**
+ * Helpers Misc
+ */
+console.time('in')
+function logNTime(output) {
+	console.log()
+	console.log(output)
+	console.timeEnd('in')
+	console.time('in')
+}
+
+/**
  * Remove & erase jank fonts from data output & filesystem
  * * Too large (> 10kb with full glyph subset)
  * * Missing glyphs from full subset
@@ -56,8 +67,6 @@ function removeJank(files) {
  * Remove too similar of fonts
  */
 function removeSimilar(files) {
-	// console.log('Removing dupes (this could take a few minutes..)')
-	// console.time('RemoveDupes')
 	for (let ii = 0; ii < files.length; ii++) {
 		const fullPathII = `${buildPath}/fonts/${files[ii].fp}.ttf`
 		for (let jj = ii; jj < files.length; jj++) {
@@ -84,8 +93,6 @@ function removeSimilar(files) {
 	return files.filter((f) => !f.dupe) // Remove dupes from JSON
 }
 
-console.log('Generating subset fonts')
-
 /**
  * Setup font processing
  */
@@ -103,6 +110,8 @@ const fontmin = new Fontmin()
 
 // Process fonts
 fontmin.run((err, cbFiles) => {
+	logNTime('Generated subset fonts')
+
 	if (err) {
 		throw err
 	}
@@ -114,7 +123,6 @@ fontmin.run((err, cbFiles) => {
 	/**
 	 * Add Meta data
 	 */
-	console.log('Adding font Meta Data & sorting by size')
 	files =
 		_.map(files,
 			(file) => ({
@@ -137,12 +145,13 @@ fontmin.run((err, cbFiles) => {
 					.replace('.ttf', '')
 			}))
 		.sort((a, b) => a.size - b.size)
+	logNTime('Added font Meta Data & sorting by size')
 
-	console.log('Removing jank fonts (missing glyphs, too big, ...)')
 	files = removeJank(files)
+	logNTime('Removed jank fonts (missing glyphs, too big, ...)')
 
-	console.log('Removing dupe fonts (too similar looking)')
 	files = removeSimilar(files)
+	logNTime('Removed dupe fonts (too similar looking)')
 
 	/**
 	 * Ouput JSON data
