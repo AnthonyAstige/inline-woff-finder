@@ -35,21 +35,6 @@ fs.removeSync(buildPath)
 const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
 
 /**
- * Setup font processing
- */
-const fontmin = new Fontmin()
-	.src(`${fontsPath}/**/*.ttf`)
-	.use(Fontmin.glyph({
-		text: glyphs,
-		// keep ttf hint info (fpgm, prep, cvt). default = true
-		hinting: true
-	}))
-	.use(Fontmin.ttf2woff({
-		deflate: true // deflate woff
-	}))
-	.dest('build/fonts')
-
-/**
  * Remove & erase jank fonts from data output & filesystem
  * * Too large (> 10kb with full glyph subset)
  * * Missing glyphs from full subset
@@ -102,6 +87,22 @@ function removeSimilar(files) {
 }
 
 console.log('Generating subset fonts')
+
+/**
+ * Setup font processing
+ */
+const fontmin = new Fontmin()
+	.src(`${fontsPath}/**/*.ttf`)
+	.use(Fontmin.glyph({
+		text: glyphs,
+		// keep ttf hint info (fpgm, prep, cvt). default = true
+		hinting: true
+	}))
+	.use(Fontmin.ttf2woff({
+		deflate: true // deflate woff
+	}))
+	.dest('build/fonts')
+
 // Process fonts
 fontmin.run((err, cbFiles) => {
 	if (err) {
