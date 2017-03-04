@@ -1,9 +1,10 @@
+/* eslint-disable no-sync */
 // TODO: Refactor all of this stuff
 
 // Script Config
 const quickDevMode = true
 
-/* eslint-disable no-sync */
+// Library include
 const _ = require('lodash')
 const Fontmin = require('fontmin')
 const FontsSimilarizer = require('fonts-similarizer')
@@ -20,19 +21,16 @@ const special = '~`!@#$%^&*()-_=+{}[]\\|;:\'"<,>./?'
 const glyphs = `${az}${AZ}${digits}${space}${special}`
 const numberGlyphs = glyphs.length - 2 // %20 is only one character (The space)
 
-// OFL Fonts from Google
-let fontsPath = '/home/anthony/fonts/ofl'
-
+// Variable setup
+let fontsPath = '/home/anthony/fonts/ofl'	// OFL Fonts from Google
 if (quickDevMode) {
-	// Dev Fonts (just a few locally)
-	fontsPath = `${__dirname}/fonts`
+	fontsPath = `${__dirname}/fonts`		// Dev Fonts (just a few locally)
 }
+const buildPath = `${__dirname}/build`
+const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
 
 // Clear build folder before each run
-const buildPath = `${__dirname}/build`
 fs.removeSync(buildPath)
-
-const builtPath = (subPath) => `${__dirname}/build/fonts/${subPath}`
 
 /**
  * Remove & erase jank fonts from data output & filesystem
